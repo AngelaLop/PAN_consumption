@@ -16,7 +16,7 @@ Output:
               0: Program set up
 ==================================================*/
 version 17
-drop _all
+drop _all 
 
 
 /*==================================================
@@ -46,6 +46,24 @@ g conum = z1 // gasto total
 
 g agro = 1 if y1122 > 0.00 
 g iagro_pc = iagro / tot_personas
+
+
+* regiones
+	encode prov, g(region)
+	
+	g Bocas_del_Toro 	= (region==1)
+	g Cocle 			= (region==2)
+	g Colon 			= (region==3)
+	g Chiriqui 			= (region==4)
+	g Darien 			= (region==5)
+	g Herrera 			= (region==6)
+	g Los_Santos		= (region==7)
+	g Panama 			= (region==8)
+	g Veraguas 			= (region==9)
+
+	
+
+
 *quintiles agro 
 
 	xtile  ipcf_Q5a = ipcf [w=pondera] if agro==1 ,  nquantiles(5)
@@ -104,7 +122,43 @@ tempfile pfile
 postfile `pname' str30(country) year str30(indicators quantil income_type) value obs using `pfile', replace
 local samples all  
 
-
+ local regiones total Bocas_del_Toro Cocle Chiriqui Darien Herrera Los_Santos Panama Veraguas 
+		foreach region of local regiones {	
+			
+						
+*•	Share of food expenditures by region 
+			
+				sum food_ex_pc [w=pondera] if `region'== 1
+				local food = `r(mean)'
+				
+				sum ipcf [w=pondera] if `region'== 1
+				local income = `r(mean)'
+				
+				local value = (`food'/ `income')*100
+				
+				sum total [w=pondera] if `region'== 1
+				local hogar = `r(sum_w)'
+				
+				post `pname' ("`region'") (2018) ("food expenditures by income per capita") ("ventil`quan'") ("ipcf") (`value') (`hogar')
+			
+			
+	
+*•	Share of transportation expenditures by region
+			
+				sum ex_transportation_pc [w=pondera] if `region'== 1
+				local food = `r(mean)'
+				
+				sum ipcf [w=pondera] if `region'== 1
+				local income = `r(mean)'
+				
+				local value = (`food'/ `income')*100
+				
+				sum total [w=pondera] if `region'== 1
+				local hogar = `r(sum_w)'
+				
+				post `pname' ("`region'") (2018) ("share of transportation expenditures in per capita consumption") ("ventil`quan'") ("ipcf") (`value') (`hogar')						
+						
+		}			
 			
 			foreach quan of numlist 1/10 {	
 				
@@ -121,7 +175,7 @@ local samples all
 				sum total [w=pondera] if ipcf_Q10==`quan'
 				local hogar = `r(sum_w)'
 				
-				post `pname' ("pan") (2018) ("food expenditures by income per capita") ("ventil`quan'") ("ipcf") (`value') (`hogar')
+				post `pname' ("`region'") (2018) ("food expenditures by income per capita") ("ventil`quan'") ("ipcf") (`value') (`hogar')
 				
 *•	Share of meet expenditures by income per capita ventiles (or deciles, if the former is not possible)
 			
@@ -136,7 +190,7 @@ local samples all
 				sum total [w=pondera] if ipcf_Q10==`quan'
 				local hogar = `r(sum_w)'
 				
-				post `pname' ("pan") (2018) ("share of meet expenditures in per capita consumption") ("ventil`quan'") ("ipcf") (`value') (`hogar')
+				post `pname' ("`region'") (2018) ("share of meet expenditures in per capita consumption") ("ventil`quan'") ("ipcf") (`value') (`hogar')
 				
 *•	Share of grains expenditures by income per capita ventiles (or deciles, if the former is not possible)
 			
@@ -151,7 +205,7 @@ local samples all
 				sum total [w=pondera] if ipcf_Q10==`quan'
 				local hogar = `r(sum_w)'
 				
-				post `pname' ("pan") (2018) ("share of grains expenditures in per capita consumption") ("ventil`quan'") ("ipcf") (`value') (`hogar')	
+				post `pname' ("`region'") (2018) ("share of grains expenditures in per capita consumption") ("ventil`quan'") ("ipcf") (`value') (`hogar')	
 				
 *•	Share of fat expenditures by income per capita ventiles (or deciles, if the former is not possible)
 			
@@ -166,7 +220,7 @@ local samples all
 				sum total [w=pondera] if ipcf_Q10==`quan'
 				local hogar = `r(sum_w)'
 				
-				post `pname' ("pan") (2018) ("share of fat expenditures in per capita consumption") ("ventil`quan'") ("ipcf") (`value') (`hogar')				
+				post `pname' ("`region'") (2018) ("share of fat expenditures in per capita consumption") ("ventil`quan'") ("ipcf") (`value') (`hogar')				
 
 *•	Share of legumbres expenditures by income per capita ventiles (or deciles, if the former is not possible)
 			
@@ -181,7 +235,7 @@ local samples all
 				sum total [w=pondera] if ipcf_Q10==`quan'
 				local hogar = `r(sum_w)'
 				
-				post `pname' ("pan") (2018) ("share of legum expenditures in per capita consumption") ("ventil`quan'") ("ipcf") (`value') (`hogar')				
+				post `pname' ("`region'") (2018) ("share of legum expenditures in per capita consumption") ("ventil`quan'") ("ipcf") (`value') (`hogar')				
 
 *•	Share of legumbres expenditures by income per capita ventiles (or deciles, if the former is not possible)
 			
@@ -196,7 +250,7 @@ local samples all
 				sum total [w=pondera] if ipcf_Q10==`quan'
 				local hogar = `r(sum_w)'
 				
-				post `pname' ("pan") (2018) ("share of transportation expenditures in per capita consumption") ("ventil`quan'") ("ipcf") (`value') (`hogar')						
+				post `pname' ("`region'") (2018) ("share of transportation expenditures in per capita consumption") ("ventil`quan'") ("ipcf") (`value') (`hogar')						
 				
     
 *•	Share of food expenditure in the total income 
@@ -212,7 +266,7 @@ local samples all
 				sum total [w=pondera] if ipcf_Q10==`quan'
 				local hogar = `r(sum_w)'
 				
-				post `pname' ("pan") (2018) ("Share of food expenditure in the total income") ("ventil`quan'") ("ipcf") (`value') (`hogar')
+				post `pname' ("`region'") (2018) ("Share of food expenditure in the total income") ("ventil`quan'") ("ipcf") (`value') (`hogar')
 			
 
 
@@ -229,7 +283,7 @@ local samples all
 				sum total [w=pondera] if ipcf_Q10==`quan'
 				local hogar = `r(sum_w)'
 				
-				post `pname' ("pan") (2018) ("Income/Consumption ratio") ("ventil`quan'") ("ipcf") (`value') (`hogar')
+				post `pname' ("`region'") (2018) ("Income/Consumption ratio") ("ventil`quan'") ("ipcf") (`value') (`hogar')
 			
 
 * income max min aver 
@@ -243,8 +297,8 @@ local samples all
 				sum ipcf [w=pondera] if ipcf_Q10==`quan'
 				local average = `r(mean)'
 				
-				post `pname' ("pan") (2018) ("MAx/average") ("ventil`quan'") ("ipcf") (`max') (`average')
-				post `pname' ("pan") (2018) ("min/average") ("ventil`quan'") ("ipcf") (`min') (`average')
+				post `pname' ("`region'") (2018) ("MAx/average") ("ventil`quan'") ("ipcf") (`max') (`average')
+				post `pname' ("`region'") (2018) ("min/average") ("ventil`quan'") ("ipcf") (`min') (`average')
 			
 			
 			
